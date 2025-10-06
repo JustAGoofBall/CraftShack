@@ -14,6 +14,10 @@
                 <div class="card-body">
                     <h5 class="card-title">@product.Name</h5>
                     <p class="card-text fs-5 fw-bold">$@product.Price</p>
+                    @if (!string.IsNullOrWhiteSpace(product.Description))
+                    {
+                        <p class="card-text">@product.Description</p>
+                    }
                 </div>
                 <div class="card-footer bg-transparent border-0">
                     <a asp-action="Details" asp-route-id="@product.Id" class="btn btn-outline-primary btn-sm">Details</a>
