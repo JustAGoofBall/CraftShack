@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="container py-5">
+    <div class="row align-items-center">
+        <div class="col-md-7">
+            <h1 class="display-4 fw-bold text-success mb-3">Welcome to CraftShack!</h1>
+            <p class="lead mb-4">
+                Discover unique Minecraft-inspired treats and gifts. From Creeper CupCakes to Diamond Donuts, we have something for every crafter!
+            </p>
+            <a class="btn btn-primary btn-lg" asp-controller="Product" asp-action="Index">
+                Browse the Catalog
+            </a>
+        </div>
+        <div class="col-md-5 text-center">
+            <img src="~/images/minecraft_banner.png" alt="Minecraft Products" class="img-fluid rounded shadow" style="max-height: 300px;" />
+        </div>
+    </div>
+    <div class="row mt-5">
+        <div class="col text-center">
+            <h2 class="fw-bold text-secondary mb-3">Why CraftShack?</h2>
+            <ul class="list-unstyled fs-5">
+                <li><span class="text-success">&#x2714;</span> Unique Minecraft-themed snacks</li>
+                <li><span class="text-success">&#x2714;</span> Perfect for parties and gifts</li>
+                <li><span class="text-success">&#x2714;</span> Fast, friendly service</li>
+            </ul>
+        </div>
+    </div>
+</div>
