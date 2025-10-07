@@ -9,6 +9,7 @@ using CraftShack.Models;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace CraftShack.Controllers
 {
@@ -171,9 +172,13 @@ namespace CraftShack.Controllers
                     new Claim("FullName", user.FullName ?? ""),
                     new Claim("UserId", user.Id.ToString())
                 };
-                var identity = new ClaimsIdentity(claims, "CustomLogin");
+                if (user.Username == "admin")
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+                }
+                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var principal = new ClaimsPrincipal(identity);
-                await HttpContext.SignInAsync(principal);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
                 return RedirectToAction("Index", "Home");
             }
@@ -186,6 +191,11 @@ namespace CraftShack.Controllers
         {
             await HttpContext.SignOutAsync();
             return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
 
         private bool UserExists(int id)

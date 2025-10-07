@@ -6,6 +6,15 @@
 
 <h1 class="mb-4 text-success">Our Minecraft Menu</h1>
 
+@if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+{
+    <div class="mb-3">
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-lg"></i> Add Product
+        </a>
+    </div>
+}
+
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     @foreach (var product in Model)
     {
@@ -19,9 +28,13 @@
                         <p class="card-text">@product.Description</p>
                     }
                 </div>
-                <div class="card-footer bg-transparent border-0">
+                <div class="card-footer bg-transparent border-0 d-flex flex-wrap gap-2">
                     <a asp-action="Details" asp-route-id="@product.Id" class="btn btn-outline-primary btn-sm">Details</a>
-                    <a asp-action="Edit" asp-route-id="@product.Id" class="btn btn-outline-secondary btn-sm">Edit</a>
+                    @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Edit" asp-route-id="@product.Id" class="btn btn-outline-secondary btn-sm">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@product.Id" class="btn btn-outline-danger btn-sm">Delete</a>
+                    }
                 </div>
             </div>
         </div>
