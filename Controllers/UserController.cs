@@ -2,31 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CraftShack.Models;
-using CraftShack.Data;
 
 namespace CraftShack.Controllers
 {
-    public class ProductController : Controller
+    public class UserController : Controller
     {
         private readonly CraftShackDbContext _context;
 
-        public ProductController(CraftShackDbContext context)
+        public UserController(CraftShackDbContext context)
         {
             _context = context;
         }
 
-        // GET: Product
+        // GET: User
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Products.ToListAsync());
+            return View(await _context.Users.ToListAsync());
         }
 
-        // GET: Product/Details/5
+        // GET: User/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,41 +32,39 @@ namespace CraftShack.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products
+            var user = await _context.Users
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (product == null)
+            if (user == null)
             {
                 return NotFound();
             }
 
-            return View(product);
+            return View(user);
         }
 
-        // GET: Product/Create
-        [Authorize(Roles = "Admin")]
+        // GET: User/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Product/Create
+        // POST: User/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Price")] Product product)
+        public async Task<IActionResult> Create([Bind("Id,Username,PasswordHash,FullName,Address")] User user)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(product);
+                _context.Add(user);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(product);
+            return View(user);
         }
 
-        // GET: Product/Edit/5
-        [Authorize(Roles = "Admin")]
+        // GET: User/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -76,22 +72,22 @@ namespace CraftShack.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
             {
                 return NotFound();
             }
-            return View(product);
+            return View(user);
         }
 
-        // POST: Product/Edit/5
+        // POST: User/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Price,Description")] Product product)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Username,PasswordHash,FullName,Address")] User user)
         {
-            if (id != product.Id)
+            if (id != user.Id)
             {
                 return NotFound();
             }
@@ -100,12 +96,12 @@ namespace CraftShack.Controllers
             {
                 try
                 {
-                    _context.Update(product);
+                    _context.Update(user);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ProductExists(product.Id))
+                    if (!UserExists(user.Id))
                     {
                         return NotFound();
                     }
@@ -116,11 +112,10 @@ namespace CraftShack.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(product);
+            return View(user);
         }
 
-        // GET: Product/Delete/5
-        [Authorize(Roles = "Admin")]
+        // GET: User/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -128,34 +123,34 @@ namespace CraftShack.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products
+            var user = await _context.Users
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (product == null)
+            if (user == null)
             {
                 return NotFound();
             }
 
-            return View(product);
+            return View(user);
         }
 
-        // POST: Product/Delete/5
+        // POST: User/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product != null)
+            var user = await _context.Users.FindAsync(id);
+            if (user != null)
             {
-                _context.Products.Remove(product);
+                _context.Users.Remove(user);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ProductExists(int id)
+        private bool UserExists(int id)
         {
-            return _context.Products.Any(e => e.Id == id);
+            return _context.Users.Any(e => e.Id == id);
         }
     }
 }

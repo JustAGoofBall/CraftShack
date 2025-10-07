@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using CraftShack.Data;
 
 namespace CraftShack.Models
 {
@@ -10,17 +11,15 @@ namespace CraftShack.Models
         }
 
         public DbSet<Product> Products { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Product>().HasData(
-                new Product { Id = 1, Name = "Creeper CupCake", Price = 19.99m, Description = "A delicious cupcake inspired by Minecraft's Creeper." },
-                new Product { Id = 2, Name = "Zombie Steak", Price = 7.99m, Description = "Tasty steak with a Minecraft zombie twist." },
-                new Product { Id = 3, Name = "Golden Carrot Candy", Price = 24.99m, Description = "Sweet golden carrot candy for Minecraft fans." },
-                new Product { Id = 4, Name = "Diamond Donut", Price = 4.99m, Description = "A shiny donut that looks like a Minecraft diamond." }
-            );
+            ProductSeed.Seed(modelBuilder);
+            UserSeed.Seed(modelBuilder);
         }
     }
 }
