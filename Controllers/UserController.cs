@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CraftShack.Models;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 
 namespace CraftShack.Controllers
 {
@@ -146,6 +149,43 @@ namespace CraftShack.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: User/Login
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        // POST: User/Login
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(string username, string password)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username && u.PasswordHash == password);
+            if (user != null)
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim("FullName", user.FullName ?? ""),
+                    new Claim("UserId", user.Id.ToString())
+                };
+                var identity = new ClaimsIdentity(claims, "CustomLogin");
+                var principal = new ClaimsPrincipal(identity);
+                await HttpContext.SignInAsync(principal);
+
+                return RedirectToAction("Index", "Home");
+            }
+            ModelState.AddModelError("", "Invalid username or password");
+            return View();
+        }
+
+        // GET: User/Logout
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+            return RedirectToAction("Index", "Home");
         }
 
         private bool UserExists(int id)

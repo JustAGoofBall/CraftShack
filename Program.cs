@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using CraftShack.Models;
 using CraftShack.Data;
 
@@ -12,6 +13,13 @@ builder.Services.AddDbContext<CraftShackDbContext>(options =>
 builder.Services.AddAuthorization();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages(); // This enables Identity UI
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/User/Login";
+        options.LogoutPath = "/User/Logout";
+    });
 
 var app = builder.Build(); // <-- Build the app first
 
