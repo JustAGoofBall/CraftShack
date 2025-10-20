@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CraftShack.Controllers
 {
@@ -23,6 +24,7 @@ namespace CraftShack.Controllers
         }
 
         // GET: User
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Users.ToListAsync());
@@ -50,7 +52,7 @@ namespace CraftShack.Controllers
         public IActionResult Create()
         {
             return View();
-        }
+        }       
 
         // POST: User/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -61,9 +63,12 @@ namespace CraftShack.Controllers
         {
             if (ModelState.IsValid)
             {
+                // TODO: hash the password and set other properties
                 _context.Add(user);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                // Redirect new customers to login (or Home) — do not send them to Index (admin-only)
+                return RedirectToAction("Login", "User");
             }
             return View(user);
         }
