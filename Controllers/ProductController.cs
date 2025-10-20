@@ -28,17 +28,10 @@ namespace CraftShack.Controllers
         // GET: Product/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var product = await _context.Products
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (product == null)
-            {
-                return NotFound();
-            }
+            var product = await _context.Products.FirstOrDefaultAsync(m => m.Id == id);
+            if (product == null) return NotFound();
 
             return View(product);
         }
@@ -51,8 +44,6 @@ namespace CraftShack.Controllers
         }
 
         // POST: Product/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -64,6 +55,7 @@ namespace CraftShack.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            // If we get here, ModelState had errors — return the view to show validation.
             return View(product);
         }
 
@@ -71,16 +63,10 @@ namespace CraftShack.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var product = await _context.Products.FindAsync(id);
-            if (product == null)
-            {
-                return NotFound();
-            }
+            if (product == null) return NotFound();
             return View(product);
         }
 
@@ -90,10 +76,7 @@ namespace CraftShack.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Price,Description")] Product product)
         {
-            if (id != product.Id)
-            {
-                return NotFound();
-            }
+            if (id != product.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
@@ -104,14 +87,8 @@ namespace CraftShack.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ProductExists(product.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!ProductExists(product.Id)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -122,17 +99,10 @@ namespace CraftShack.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var product = await _context.Products
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (product == null)
-            {
-                return NotFound();
-            }
+            var product = await _context.Products.FirstOrDefaultAsync(m => m.Id == id);
+            if (product == null) return NotFound();
 
             return View(product);
         }
@@ -144,10 +114,7 @@ namespace CraftShack.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var product = await _context.Products.FindAsync(id);
-            if (product != null)
-            {
-                _context.Products.Remove(product);
-            }
+            if (product != null) _context.Products.Remove(product);
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
