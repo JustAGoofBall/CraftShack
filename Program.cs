@@ -20,17 +20,10 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
     options.SignIn.RequireConfirmedAccount = true;
     options.Tokens.AuthenticatorTokenProvider = TokenOptions.DefaultAuthenticatorProvider;
 })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<CraftShackDbContext>();
 
 builder.Services.AddRazorPages();
-
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/User/Login";
-        options.LogoutPath = "/User/Logout";
-        options.AccessDeniedPath = "/User/AccessDenied";
-    });
 
 var app = builder.Build(); // <-- Build the app first
 
@@ -62,6 +55,25 @@ using (var scope = app.Services.CreateScope())
         if (!roleManager.RoleExistsAsync(role).GetAwaiter().GetResult())
         {
             roleManager.CreateAsync(new IdentityRole(role)).GetAwaiter().GetResult();
+        }
+    }
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+    var adminEmail = "admin@example.com";
+    var adminUserName = "admin";
+    var adminPassword = "admin123";
+
+    var adminUser = await userManager.FindByNameAsync(adminUserName);
+    if (adminUser == null)
+    {
+        adminUser = new IdentityUser { UserName = adminUserName, Email = adminEmail, EmailConfirmed = true };
+        var result = await userManager.CreateAsync(adminUser, adminPassword);
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(adminUser, "Admin");
         }
     }
 }
