@@ -25,22 +25,34 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 
 builder.Services.AddRazorPages();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+});
+
+builder.Services.AddAntiforgery(options =>
+{
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+});
+
 var app = builder.Build(); // <-- Build the app first
 
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
 app.UseRouting();
 
-app.UseAuthentication(); 
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseStaticFiles();
 
 app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapRazorPages(); // This enables Identity UI
-
+app.MapRazorPages();
+app.UseRouting();
 var cultureInfo = new System.Globalization.CultureInfo("de-DE");
 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
 CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
@@ -49,24 +61,22 @@ CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+
     string[] roles = { "Admin", "Manager", "Customer" };
     foreach (var role in roles)
     {
-        if (!roleManager.RoleExistsAsync(role).GetAwaiter().GetResult())
+        if (!await roleManager.RoleExistsAsync(role))
         {
-            roleManager.CreateAsync(new IdentityRole(role)).GetAwaiter().GetResult();
+            await roleManager.CreateAsync(new IdentityRole(role));
         }
     }
-}
 
-using (var scope = app.Services.CreateScope())
-{
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-    var adminEmail = "admin@example.com";
+    // Seed admin user
     var adminUserName = "admin";
-    var adminPassword = "admin123";
-
-    var adminUser = await userManager.FindByNameAsync(adminUserName);
+    var adminEmail = "admin@example.com";
+    var adminPassword = "Admin123!";
+    var adminUser = await userManager.FindByEmailAsync(adminEmail);
     if (adminUser == null)
     {
         adminUser = new IdentityUser { UserName = adminUserName, Email = adminEmail, EmailConfirmed = true };
@@ -76,6 +86,20 @@ using (var scope = app.Services.CreateScope())
             await userManager.AddToRoleAsync(adminUser, "Admin");
         }
     }
+    else
+    {
+        // Ensure admin is in the Admin role
+        if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
+        {
+            await userManager.AddToRoleAsync(adminUser, "Admin");
+        }
+    }
 }
+
+app.Use((context, next) =>
+{
+    context.Request.Headers.Remove("X-Requested-With");
+    return next();
+});
 
 app.Run();

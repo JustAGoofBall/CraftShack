@@ -1,0 +1,20 @@
+@page
+@model EditModel
+@{
+    ViewData["Title"] = "Edit User";
+}
+<h2>Edit User</h2>
+<form method="post">
+    <input type="hidden" asp-for="Input.Id" />
+    <div class="mb-3">
+        <label asp-for="Input.Email"></label>
+        <input asp-for="Input.Email" class="form-control" />
+        <span asp-validation-for="Input.Email" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+</form>
+@if (TempData["StatusMessage"] != null)
+{
+    <div class="alert alert-info">@TempData["StatusMessage"]</div>
+}

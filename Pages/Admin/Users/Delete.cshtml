@@ -1,0 +1,16 @@
+@page
+@model DeleteModel
+@{
+    ViewData["Title"] = "Delete User";
+}
+<h2>Delete User</h2>
+<p>Are you sure you want to delete user @Model.UserToDelete?.Email?</p>
+<form method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+</form>
+@if (TempData["StatusMessage"] != null)
+{
+    <div class="alert alert-info">@TempData["StatusMessage"]</div>
+}

@@ -1,0 +1,31 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Accounts";
+}
+<h2>Accounts</h2>
+<a asp-page="CreateManager" class="btn btn-primary mb-2">Create Manager</a>
+@if (TempData["StatusMessage"] != null)
+{
+    <div class="alert alert-info">@TempData["StatusMessage"]</div>
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var user in Model.Users)
+    {
+        <tr>
+            <td>@user.Email</td>
+            <td>
+                <a asp-page="Edit" asp-route-id="@user.Id" class="btn btn-sm btn-warning">Edit</a>
+                <a asp-page="Delete" asp-route-id="@user.Id" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
