@@ -31,7 +31,7 @@
     </dl>
 </div>
 <div>
-    @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+    @if (User.Identity.IsAuthenticated && (User.IsInRole("Admin") || User.IsInRole("Manager")))
     {
         <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Edit</a>
         <a asp-action="Delete" asp-route-id="@Model?.Id" class="btn btn-danger ms-2">Delete</a>

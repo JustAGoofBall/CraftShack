@@ -46,8 +46,8 @@ namespace CraftShack.Controllers
         // POST: Product/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("Id,Name,Price,Description")] Product product)
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> Create([Bind("Name,Price,Description")] Product product)
         {
             if (ModelState.IsValid)
             {
@@ -73,7 +73,7 @@ namespace CraftShack.Controllers
         // POST: Product/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Price,Description")] Product product)
         {
             if (id != product.Id) return NotFound();
@@ -110,7 +110,7 @@ namespace CraftShack.Controllers
         // POST: Product/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var product = await _context.Products.FindAsync(id);

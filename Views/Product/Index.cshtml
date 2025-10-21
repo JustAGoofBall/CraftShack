@@ -6,7 +6,7 @@
 
 <h1 class="mb-4 text-success">Our Minecraft Menu</h1>
 
-@if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+@if (User.Identity.IsAuthenticated && (User.IsInRole("Admin") || User.IsInRole("Manager")))
 {
     <div class="mb-3">
         <a asp-action="Create" class="btn btn-success">
