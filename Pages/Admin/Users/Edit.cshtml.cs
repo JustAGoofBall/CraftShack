@@ -9,7 +9,13 @@ using System.Threading.Tasks;
 public class EditModel : PageModel
 {
     private readonly UserManager<IdentityUser> _userManager;
-    public EditModel(UserManager<IdentityUser> userManager) => _userManager = userManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
+
+    public EditModel(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+    {
+        _userManager = userManager;
+        _roleManager = roleManager;
+    }
 
     [BindProperty]
     public EditInputModel Input { get; set; }
@@ -20,13 +26,15 @@ public class EditModel : PageModel
         [Required]
         [EmailAddress]
         public string Email { get; set; }
+        public bool IsManager { get; set; }
     }
 
     public async Task<IActionResult> OnGetAsync(string id)
     {
         var user = await _userManager.FindByIdAsync(id);
         if (user == null) return NotFound();
-        Input = new EditInputModel { Id = user.Id, Email = user.Email };
+        var isManager = await _userManager.IsInRoleAsync(user, "Manager");
+        Input = new EditInputModel { Id = user.Id, Email = user.Email, IsManager = isManager };
         return Page();
     }
 
@@ -38,6 +46,13 @@ public class EditModel : PageModel
         user.Email = Input.Email;
         user.UserName = Input.Email;
         await _userManager.UpdateAsync(user);
+
+        var isManager = await _userManager.IsInRoleAsync(user, "Manager");
+        if (Input.IsManager && !isManager)
+            await _userManager.AddToRoleAsync(user, "Manager");
+        else if (!Input.IsManager && isManager)
+            await _userManager.RemoveFromRoleAsync(user, "Manager");
+
         TempData["StatusMessage"] = "User updated.";
         return RedirectToPage("Index");
     }

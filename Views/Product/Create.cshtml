@@ -10,30 +10,77 @@
 <hr />
 <div class="row">
     <div class="col-md-6">
-        <form asp-action="Create" method="post" id="product-create-form">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
             @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <div class="mb-3">
-                <label asp-for="Name" class="form-label"></label>
+            
+            <div class="form-group mb-3">
+                <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
-
-            <div class="mb-3">
-                <label asp-for="Price" class="form-label"></label>
-                <input asp-for="Price" class="form-control" type="number" step="0.01" lang="en" />
+            
+            <div class="form-group mb-3">
+                <label asp-for="Price" class="control-label"></label>
+                <input asp-for="Price" class="form-control" type="number" step="0.01" min="0" lang="en" />
                 <span asp-validation-for="Price" class="text-danger"></span>
             </div>
-
-            <div class="mb-3">
-                <label asp-for="Description" class="form-label"></label>
+            
+            <div class="form-group mb-3">
+                <label asp-for="Description" class="control-label"></label>
                 <textarea asp-for="Description" class="form-control" rows="3"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
-                <input type="submit" value="Create" class="btn btn-primary"/>
+            <div class="form-group mb-3">
+                <label class="control-label">Product Image</label>
+                
+                <ul class="nav nav-tabs" id="imageTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="existing-tab" data-bs-toggle="tab" data-bs-target="#existing" type="button" role="tab">Select Existing</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload" type="button" role="tab">Upload New</button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content border border-top-0 p-3" id="imageTabContent">
+                    <div class="tab-pane fade show active" id="existing" role="tabpanel">
+                        @if (ViewBag.ExistingImages != null && ViewBag.ExistingImages.Count > 0)
+                        {
+                            <div class="row g-2">
+                                @foreach (var imagePath in ViewBag.ExistingImages)
+                                {
+                                    <div class="col-4 col-md-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input existing-image-radio" type="radio" name="ImagePath" id="img_@imagePath.GetHashCode()" value="@imagePath" />
+                                            <label class="form-check-label d-block" for="img_@imagePath.GetHashCode()">
+                                                <img src="@imagePath" alt="Product option" class="img-thumbnail" style="width: 100%; height: 80px; object-fit: cover; cursor: pointer;" />
+                                            </label>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No images available. Upload a new image using the "Upload New" tab.</p>
+                        }
+                    </div>
+                    
+                    <div class="tab-pane fade" id="upload" role="tabpanel">
+                        <div class="mb-3">
+                            <label for="imageUpload" class="form-label">Choose an image file</label>
+                            <input type="file" class="form-control" id="imageUpload" name="ImageUpload" accept="image/*" />
+                            <div class="form-text">Supported formats: JPG, PNG, GIF</div>
+                        </div>
+                        <div id="uploadPreview" class="mt-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
                 <a asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
             </div>
         </form>
@@ -42,4 +89,34 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Clear file upload when selecting existing image
+        document.querySelectorAll('.existing-image-radio').forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.checked) {
+                    document.getElementById('imageUpload').value = '';
+                    document.getElementById('uploadPreview').innerHTML = '';
+                }
+            });
+        });
+
+        // Clear existing image selection when uploading new file
+        document.getElementById('imageUpload')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('uploadPreview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = '<img src="' + e.target.result + '" class="img-thumbnail" style="max-width: 200px; max-height: 200px;" />';
+                };
+                reader.readAsDataURL(file);
+                
+                // Uncheck all existing image radio buttons
+                document.querySelectorAll('input[name="ImagePath"]').forEach(radio => radio.checked = false);
+            } else {
+                preview.innerHTML = '';
+            }
+        });
+    </script>
 }
